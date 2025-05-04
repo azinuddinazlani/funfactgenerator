@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Fact Generator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-top: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        .fact-box {
+            min-height: 100px;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border-left: 5px solid #4CAF50;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .category {
+            display: inline-block;
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fun Fact Generator</h1>
+        
+        <div class="fact-box" id="fact-container">
+            {% if fact %}
+                <p id="fact-content">{{ fact.content }}</p>
+                {% if fact.category %}
+                    <span class="category" id="fact-category">{{ fact.category }}</span>
+                {% endif %}
+            {% else %}
+                <p id="fact-content">No facts available yet. Add some in the admin panel!</p>
+                <span class="category" id="fact-category" style="display: none;"></span>
+            {% endif %}
+        </div>
+        
+        <button id="new-fact-btn">Get New Fact</button>
+    </div>
+
+    <script>
+        document.getElementById('new-fact-btn').addEventListener('click', function() {
+            fetch('/api/random-fact/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('fact-content').textContent = data.error;
+                        document.getElementById('fact-category').style.display = 'none';
+                    } else {
+                        document.getElementById('fact-content').textContent = data.content;
+                        
+                        const categoryElement = document.getElementById('fact-category');
+                        if (data.category) {
+                            categoryElement.textContent = data.category;
+                            categoryElement.style.display = 'inline-block';
+                        } else {
+                            categoryElement.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('fact-content').textContent = 'Error loading fact. Please try again.';
+                });
+        });
+    </script>
+</body>
+</html>
